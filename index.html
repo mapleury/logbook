@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Logbook</title>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
         :root {
             --bg-color: #fcfbf8; --text-color: #2c2c2c; --border-color: #d1cdc2;
@@ -32,7 +33,6 @@
         .app-visible nav { display: flex; }
         .app-visible #loginOverlay { display: none; }
 
-        /* Stats & Leaderboard */
         .stats-wrapper { background: white; border: 1px solid var(--border-color); padding: 30px; margin-bottom: 40px; text-align: center; }
         .stats-grid { 
     display: grid; 
@@ -42,14 +42,12 @@
         .stat-item h4 { margin: 0; font-size: 0.7rem; text-transform: uppercase; color: #999; }
         .stat-item p { margin: 5px 0 0; font-size: 2.2rem; font-family: 'Instrument Serif'; }
 
-        /* Calendar */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid var(--border-color); border-left: 1px solid var(--border-color); }
         .day { min-height: 120px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 8px; cursor: pointer; background: white; }
         .day:hover { background: #f9f9f9; }
         .day-header { text-align: center; font-size: 0.7rem; padding: 15px 0; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); background: #f4f4f2; text-transform: uppercase; }
         .event-tag { font-size: 0.65rem; padding: 3px 6px; margin-top: 3px; color: white; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Index & Log Cards */
         .archive-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; }
         .log-card { background: white; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 20px; position: relative; text-align: left; }
         .controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 5px; }
@@ -61,7 +59,6 @@
         .view.active { display: block; }
         .btn-black { background: var(--text-color); color: white; border: none; padding: 15px 30px; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
         
-        /* Specific for Quan Management */
         #quan-manage-section { margin-top: 80px; border-top: 2px solid var(--border-color); padding-top: 40px; }
         .quan-log-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
     </style>
@@ -182,7 +179,7 @@ Consider it a challenge. Don’t disappoint me.</p>
 
     const accessMap = {
         "2810": { name: "Quan", db: "quan_family", greet: "Master Control: Quan" },
-        "1009": { name: "Kak", db: "kak_archive", greet: "Welcome, Kak" },
+        "1009": { name: "Kak", db: "kak_archive", greet: "Welcome, Kak Raihan" },
         "0906": { name: "Bal", db: "bal_archive", greet: "Welcome, Bal" },
         "1307": { name: "Ney", db: "ney_archive", greet: "Welcome, Ney" },
         "1807": { name: "Riri", db: "riri_archive", greet: "Welcome, Riri" },
@@ -223,23 +220,19 @@ Consider it a challenge. Don’t disappoint me.</p>
         }
     }
 
-    // --- QUAN MULTI-DB LISTENER ---
     async function loadQuanMasterData() {
         const dbs = ["quan_family", "kak_archive", "bal_archive", "ney_archive", "riri_archive", "yasmin_archive", "azwa_archive", "ekin_archive", "jaki_archive", "iwa_archive"];
         quanGlobalLogs = [];
         
         for (let dbName of dbs) {
             const q = query(collection(db, dbName), orderBy("start", "asc"));
-        // Di dalam loadQuanMasterData, ganti bagian onSnapshot menjadi ini:
 onSnapshot(q, (snap) => {
     const logs = snap.docs
         .map(d => ({ id: d.id, sourceDb: dbName, ...d.data() }))
         .filter(d => d.author === "Quan");
     
-    // Update master list & pastikan tidak ada duplikat ID, lalu urutkan berdasarkan tanggal
     quanGlobalLogs = quanGlobalLogs.filter(l => l.sourceDb !== dbName).concat(logs);
     
-    // TAMBAHKAN INI: Sortir biar kalender ga berantakan
     quanGlobalLogs.sort((a, b) => {
         if (a.start === 'dateless') return 1;
         if (b.start === 'dateless') return -1;
@@ -253,7 +246,6 @@ onSnapshot(q, (snap) => {
         }
     }
 
-    // --- LEADERBOARD ---
     async function updateLeaderboard() {
         const content = document.getElementById('leaderboardContent');
         content.innerHTML = '';
@@ -275,7 +267,6 @@ onSnapshot(q, (snap) => {
         }
     }
 
-    // --- FORM CORE ---
     window.openForm = (date = '') => {
         document.getElementById('formModal').style.display = 'flex';
         document.getElementById('startDate').value = date;
@@ -314,7 +305,6 @@ onSnapshot(q, (snap) => {
         } catch (e) { alert("Error: " + e.message); }
     };
 
-    // --- RENDER QUAN MANAGEMENT ---
     function renderQuanManage() {
         const list = document.getElementById('quanRecentLogs');
         if(!list) return;
@@ -353,7 +343,6 @@ onSnapshot(q, (snap) => {
         }
     };
 
-    // --- CALENDAR & INDEX RENDER ---
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
